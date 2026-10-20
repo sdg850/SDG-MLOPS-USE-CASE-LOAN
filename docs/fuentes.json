@@ -1,0 +1,25 @@
+{
+  "fuentes": [
+    {
+      "archivo": "Caso Renovación de Préstamo.ipynb",
+      "sha256": "af4e75b32a6e33acfc3bc66d6d7394719012183d88b3af767ec343df5ebcebbb",
+      "bytes": 3147963
+    },
+    {
+      "archivo": "Caso Renovación de Préstamo.pptx",
+      "sha256": "a52bad2580dea2bceb156f7453654863ab76a8865a8e1c3fd2122c80d9632070",
+      "bytes": 110465
+    },
+    {
+      "archivo": "Dataset Renovacion_prestamo.csv",
+      "sha256": "150479bd2718a023760cc1e39a41f68cee324d2c04ebe8c9bd8d0d69f13c1dab",
+      "bytes": 8931339
+    },
+    {
+      "archivo": "Diccionario Renovacion prestamo.xlsx",
+      "sha256": "270cf607a8879c6d720fbf9f8f325c4bb2f8b4faf2fb4c2d31e4bfec81b81ecb",
+      "bytes": 10409
+    }
+  ],
+  "nota": "Adjuntos originales inspeccionados sin modificar; no se publican datos ni originales con salidas."
+}

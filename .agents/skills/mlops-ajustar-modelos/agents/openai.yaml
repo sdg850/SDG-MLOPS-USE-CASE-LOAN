@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evaluación MLOps"
+  short_description: "Comparar candidatos con evidencia verificable"
+  default_prompt: "Usa $mlops-ajustar-modelos para refactorizar y validar el caso de renovación de préstamo."

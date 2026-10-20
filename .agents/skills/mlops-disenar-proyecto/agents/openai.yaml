@@ -1,0 +1,4 @@
+interface:
+  display_name: "Arquitectura MLOps"
+  short_description: "Refactorizar notebooks y contratos de datos"
+  default_prompt: "Usa $mlops-disenar-proyecto para refactorizar y validar el caso de renovación de préstamo."

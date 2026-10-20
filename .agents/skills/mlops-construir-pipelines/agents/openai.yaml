@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pipelines MLOps"
+  short_description: "Construir flujos reproducibles y sin leakage"
+  default_prompt: "Usa $mlops-construir-pipelines para refactorizar y validar el caso de renovación de préstamo."
