@@ -139,40 +139,63 @@ def temporal_cv_splits(train_frame):
     return folds, protocol
 
 
-def tune_random_forest(train_frame, include_cluster=True, random_state=42, param_grid=None):
-    """Run exactly 4 combinations x 3 temporal folds + one train-only refit.
+def tune_random_forest(train_frame, include_cluster=True, random_state=42, param_grid=None, method="grid", n_iter=4):
+    """Run a bounded grid/random search with 3 temporal folds + train-only refit.
+
+    Defaults: grid 4 combinations or random 4 draws, each 12 CV fits plus one
+    refit. Grid tests the endpoints; random samples integer values inside the
+    same bounds. These are distinct search strategies, not equal candidate sets.
 
     GridSearchCV clones the complete raw-input pipeline in every fold, so
     imputation, scaling, encoding, clustering and undersampling are refitted
     solely on the corresponding earlier campaigns. The held-out July/August
     selection and September test data are not arguments to this function.
     """
-    from sklearn.model_selection import GridSearchCV
+    from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
     from .schema import FEATURE_COLUMNS
+    if method not in {"grid", "random"}:
+        raise ValueError("Search method must be grid or random.")
+    if not isinstance(n_iter, int) or n_iter < 1:
+        raise ValueError("n_iter must be a positive integer.")
     folds, protocol = temporal_cv_splits(train_frame)
     estimator = build_model(
         RandomForestClassifier(min_samples_leaf=10, n_jobs=2, random_state=random_state),
         strategy="under", include_cluster=include_cluster, random_state=random_state,
     )
-    parameter_grid = param_grid if param_grid is not None else {
-        "model__estimator__n_estimators": [50, 100],
-        "model__estimator__max_depth": [4, 8],
+    common = {
+        "estimator": estimator, "cv": folds, "scoring": "f1", "refit": True,
+        "n_jobs": 1, "error_score": "raise", "return_train_score": False,
     }
-    search = GridSearchCV(
-        estimator=estimator, param_grid=parameter_grid, cv=folds,
-        scoring="f1", refit=True, n_jobs=1, error_score="raise",
-        return_train_score=False,
-    )
+    if method == "grid":
+        search_space = param_grid if param_grid is not None else {
+            "model__estimator__n_estimators": [50, 100],
+            "model__estimator__max_depth": [4, 8],
+        }
+        search = GridSearchCV(param_grid=search_space, **common)
+        documented_space = search_space
+    else:
+        from scipy.stats import randint
+        search_space = param_grid if param_grid is not None else {
+            "model__estimator__n_estimators": randint(50, 101),
+            "model__estimator__max_depth": randint(4, 9),
+        }
+        search = RandomizedSearchCV(param_distributions=search_space, n_iter=n_iter, random_state=random_state, **common)
+        documented_space = param_grid if param_grid is not None else {
+            "model__estimator__n_estimators": {"distribution": "randint", "low": 50, "high_exclusive": 101},
+            "model__estimator__max_depth": {"distribution": "randint", "low": 4, "high_exclusive": 9},
+        }
     search.fit(train_frame.loc[:, FEATURE_COLUMNS], train_frame["FLAG_VENTA"])
     summary = {
         "enabled": True,
-        "method": "GridSearchCV",
-        "candidate": "forest_grid_under",
+        "method": "GridSearchCV" if method == "grid" else "RandomizedSearchCV",
+        "candidate": "forest_grid_under" if method == "grid" else "forest_random_under",
         "scoring": "f1_class_1_at_estimator_threshold_0.5",
         "best_params": search.best_params_,
         "best_cv_score": float(search.best_score_),
         "best_cv_std": float(search.cv_results_["std_test_score"][search.best_index_]),
-        "parameter_grid": parameter_grid,
+        "search_space": documented_space,
+        "parameter_grid": documented_space if method == "grid" else None,
+        "requested_n_iter": n_iter if method == "random" else None,
         "combinations": int(len(search.cv_results_["params"])),
         "fold_count": len(folds),
         "cv_fit_count": int(len(search.cv_results_["params"]) * len(folds)),

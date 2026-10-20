@@ -33,7 +33,7 @@ def file_sha256(path):
 
 def _versions():
     versions = {"python": platform.python_version()}
-    for package in ("numpy", "pandas", "scikit-learn", "joblib", "imbalanced-learn", "xgboost"):
+    for package in ("numpy", "pandas", "scikit-learn", "scipy", "joblib", "imbalanced-learn", "xgboost", "mlflow", "dvc", "fastapi", "pydantic", "uvicorn"):
         try:
             versions[package] = importlib.metadata.version(package)
         except importlib.metadata.PackageNotFoundError:
@@ -64,7 +64,7 @@ def _partition_manifest(partitions):
     return result
 
 
-def fit_candidates(train_frame, validation_frame, random_state=42, include_cluster=True, include_smote=False, include_xgboost=False, tune=False):
+def fit_candidates(train_frame, validation_frame, random_state=42, include_cluster=True, include_smote=False, include_xgboost=False, tune=False, search_method="grid"):
     """Fit/rank on train/validation only, with optional train-internal temporal CV."""
     specifications = candidate_specs(random_state, include_smote, include_xgboost)
     results = []
@@ -104,12 +104,12 @@ def fit_candidates(train_frame, validation_frame, random_state=42, include_clust
         score_candidate(name, model, strategy, started)
     if tune:
         started = time.perf_counter()
-        tuned_model, tuning = tune_random_forest(train_frame, include_cluster, random_state)
-        score_candidate("forest_grid_under", tuned_model, "under", started, tuning)
+        tuned_model, tuning = tune_random_forest(train_frame, include_cluster, random_state, method=search_method)
+        score_candidate(tuning["candidate"], tuned_model, "under", started, tuning)
     return winner, results
 
 
-def train(data_path, output_dir, random_state=42, include_cluster=True, include_smote=False, include_xgboost=False, tune=False):
+def train(data_path, output_dir, random_state=42, include_cluster=True, include_smote=False, include_xgboost=False, tune=False, search_method="grid"):
     """Train a complete raw-input artifact and evaluate the selected candidate once.
 
     Validation and threshold search use July/August. September is reserved for
@@ -123,7 +123,7 @@ def train(data_path, output_dir, random_state=42, include_cluster=True, include_
     partitions = split_temporal(frame)
     winner, results = fit_candidates(
         partitions["train"], partitions["validation"], random_state,
-        include_cluster, include_smote, include_xgboost, tune,
+        include_cluster, include_smote, include_xgboost, tune, search_method,
     )
     # Only the chosen estimator sees the test features, and only for inference.
     test_probability = positive_probability(winner["pipeline"], partitions["test"].loc[:, FEATURE_COLUMNS])

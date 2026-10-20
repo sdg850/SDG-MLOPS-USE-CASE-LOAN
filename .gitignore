@@ -11,6 +11,8 @@ dist/
 !.env.example
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/*.dvc
+!data/raw/.gitignore
 notebooks/original/
 references/original/
 artifacts/
@@ -20,3 +22,11 @@ mlruns/
 transfer-*.b64
 *.xz
 *.log
+
+.dvc/cache/
+.dvc/tmp/
+.dvc/config.local
+mlartifacts/
+*.db
+*.db-shm
+*.db-wal

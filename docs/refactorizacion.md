@@ -70,6 +70,6 @@ Las tres variables usadas para KMeans y varias decisiones de transformación ya 
 
 ## Evidencia y límites
 
-Las pruebas automatizadas deben cubrir aislamiento temporal, contrato de entrada, manejo de categorías no vistas, invariancia del estado del transformador al evaluar y paridad tras serialización. Los reportes de entrenamiento describen la ejecución concreta, no el despliegue productivo. No se instrumenta automáticamente DVC, MLflow, serving público, calibración ni monitoreo de drift por extraer módulos.
+Las pruebas automatizadas deben cubrir aislamiento temporal, contrato de entrada, manejo de categorías no vistas, invariancia del estado del transformador al evaluar y paridad tras serialización. Los reportes de entrenamiento describen la ejecución concreta, no el despliegue productivo. La adaptación posterior de las unidades 01–06 añade DVC local, MLflow SQLite y serving local mediante comandos explícitos; ver `unidades_01_06.md`. No implementa serving público, calibración ni monitoreo de drift.
 
 Los CSV originales, los registros de clientes y los modelos derivados no deben incorporarse a un repositorio público por defecto. Las pruebas usan fixtures sintéticos declarados como tales y no publican identificadores reales. El notebook de trabajo conserva EDA agregado y evita salidas con filas de clientes.

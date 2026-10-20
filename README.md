@@ -1,6 +1,36 @@
 # SDG-MLOPS-USE-CASE-LOAN
 
-Renovación de préstamos: caso educativo de **propensión comercial**, refactorizado desde el notebook original de 186 celdas. El flujo se ejecuta desde CLI o desde [el notebook de 15 celdas](notebooks/Caso_Renovacion_Prestamo_refactorizado.ipynb).
+Renovación de préstamos: caso educativo de **propensión comercial**, refactorizado desde el notebook original de 186 celdas. El flujo se ejecuta desde CLI o desde [el notebook de 16 celdas](notebooks/Caso_Renovacion_Prestamo_refactorizado.ipynb).
+
+## Adaptación de las unidades 1–6
+
+El proyecto sigue ahora los patrones del repositorio de curso autorizado. Las carpetas `Unidad01` a `Unidad06` son entradas didácticas que reutilizan una sola implementación. Ver [correspondencia y diferencias](docs/unidades_01_06.md).
+
+```bash
+source .venv/bin/activate
+python -m pip install -e '.[dev,api,mlops]'
+python Unidad01/entorno.py --include-dev
+python Unidad03/versionar.py --dvc
+python Unidad04/run_pipeline.py --tune --track
+python Unidad06/pipeline/run_pipeline.py
+```
+
+La última orden ejecuta baseline, GridSearch, RandomizedSearch, comparación por validación y registro con alias `candidato`, en SQLite local. La comparación exige hashes del dataset y del protocolo. Las salidas están en `artifacts/course`; el registro no despliega el servicio ni cambia modelos de producción. El baseline y las búsquedas usan la misma partición de evaluación y tienen sus presupuestos documentados.
+
+La base de tracking compartida es `artifacts/mlflow.db`. Puede abrirse localmente con:
+
+```bash
+mlflow ui --backend-store-uri "sqlite:///$(pwd)/artifacts/mlflow.db" --host 127.0.0.1 --port 5000
+```
+
+Serving con el artefacto de `artifacts/model.joblib`:
+
+```bash
+python -m uvicorn loan_renewal.api:app --host 127.0.0.1 --port 8000
+docker compose up --build -d
+```
+
+La API expone `POST /predecir`, `GET /health` y `/docs`. Los artefactos se montan de solo lectura y el puerto Docker se limita a localhost. DVC agrega el CSV a caché local y crea un puntero; no se configura remoto ni se afirma que los bytes estén respaldados externamente.
 
 ## Ejecutar en este Codespace
 

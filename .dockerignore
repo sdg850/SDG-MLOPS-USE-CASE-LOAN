@@ -1,0 +1,11 @@
+*
+!pyproject.toml
+!src/
+!src/**
+src/**/__pycache__/
+src/**/*.pyc
+src/**/*.pyo
+src/**/*.joblib
+src/**/*.pkl
+src/**/*.csv
+src/**/.env

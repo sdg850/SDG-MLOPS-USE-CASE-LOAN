@@ -11,6 +11,10 @@ dependencies = ["numpy==2.3.5", "pandas==2.2.3", "scikit-learn==1.8.0", "joblib=
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<10", "nbformat>=5.10,<6", "nbclient>=0.10,<1", "ipykernel>=6,<8"]
+api = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "httpx>=0.27,<1"]
+tracking = ["mlflow>=3.1,<4"]
+versioning = ["dvc>=3.60,<4"]
+mlops = ["mlflow>=3.1,<4", "dvc>=3.60,<4"]
 smote = ["imbalanced-learn>=0.14,<0.15"]
 xgboost = ["xgboost>=3,<4"]
 
