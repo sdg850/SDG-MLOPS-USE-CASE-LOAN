@@ -79,7 +79,7 @@ def create_app(model_path: str | Path | None = None) -> FastAPI:
     relative to the invocation's working directory, documented as repo root.
     There is no hot reload, training, resampling or model upload endpoint.
     """
-    artifact_path = Path(model_path or os.environ.get("MODEL_PATH", "artifacts/model.joblib"))
+    artifact_path = Path(model_path or os.environ.get("MODEL_PATH", str(Path(__file__).resolve().parents[2] / "models/model.joblib")))
 
     @asynccontextmanager
     async def lifespan(application: FastAPI):

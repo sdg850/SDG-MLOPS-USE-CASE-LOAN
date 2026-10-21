@@ -1,113 +1,100 @@
 # SDG-MLOPS-USE-CASE-LOAN
 
-Renovación de préstamos: caso educativo de **propensión comercial**, refactorizado desde el notebook original de 186 celdas. El flujo se ejecuta desde CLI o desde [el notebook de 16 celdas](notebooks/Caso_Renovacion_Prestamo_refactorizado.ipynb).
+Caso educativo de **propensión comercial a renovar un préstamo**. El notebook original de `docs/` se transforma en [un notebook delgado](notebooks/01_renovacion_prestamo.ipynb) que utiliza el mismo paquete que CLI, pipeline, MLflow y API. Los datos y los artefactos derivados permanecen fuera de Git.
 
-## Adaptación de las unidades 1–6
+La organización sigue Cookiecutter Data Science, con el paquete instalado desde `src/`. Las unidades 1–6 del curso se integran por responsabilidad; ya no requieren seis carpetas con puntos de entrada repetidos. Consulta [la estructura](docs/cookiecutter.md), [la correspondencia con el curso](docs/unidades_01_06.md) y [la auditoría del original](docs/refactorizacion.md).
 
-El proyecto sigue ahora los patrones del repositorio de curso autorizado. Las carpetas `Unidad01` a `Unidad06` son entradas didácticas que reutilizan una sola implementación. Ver [correspondencia y diferencias](docs/unidades_01_06.md).
+## Preparar Codespaces
+
+Usar Python 3.12 y el entorno del proyecto:
 
 ```bash
+make install
 source .venv/bin/activate
-python -m pip install -e '.[dev,api,mlops]'
-python Unidad01/entorno.py --include-dev
-python Unidad03/versionar.py --dvc
-python Unidad04/run_pipeline.py --tune --track
-python Unidad06/pipeline/run_pipeline.py
+python -m loan_renewal check-env --include-dev
+make test
 ```
 
-La última orden ejecuta baseline, GridSearch, RandomizedSearch, comparación por validación y registro con alias `candidato`, en SQLite local. La comparación exige hashes del dataset y del protocolo. Las salidas están en `artifacts/course`; el registro no despliega el servicio ni cambia modelos de producción. El baseline y las búsquedas usan la misma partición de evaluación y tienen sus presupuestos documentados.
-
-La base de tracking compartida es `artifacts/mlflow.db`. Puede abrirse localmente con:
-
-```bash
-mlflow ui --backend-store-uri "sqlite:///$(pwd)/artifacts/mlflow.db" --host 127.0.0.1 --port 5000
-```
-
-Serving con el artefacto de `artifacts/model.joblib`:
-
-```bash
-python -m uvicorn loan_renewal.api:app --host 127.0.0.1 --port 8000
-docker compose up --build -d
-```
-
-La API expone `POST /predecir`, `GET /health` y `/docs`. Los artefactos se montan de solo lectura y el puerto Docker se limita a localhost. DVC agrega el CSV a caché local y crea un puntero; no se configura remoto ni se afirma que los bytes estén respaldados externamente.
-
-## Ejecutar en este Codespace
-
-El entorno preparado está en `.venv` con Python 3.12. El Python global del Codespace puede ser 3.14, por lo que debe activarse el entorno:
-
-```bash
-source .venv/bin/activate
-python -m unittest discover -s tests -v
-python -m loan_renewal train --data "data/raw/Dataset Renovacion_prestamo.csv" --output artifacts
-```
-
-Para abrir el notebook, seleccionar el kernel **Loan renewal (.venv)**. Desde otro entorno:
+Si se configura el entorno manualmente:
 
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e '.[dev]'
+python -m pip install -e '.[dev,api,mlops]'
 python -m ipykernel install --user --name loan-renewal --display-name "Loan renewal (.venv)"
 ```
 
-Si el Python 3.12 del Codespace no incluye `ensurepip`, se puede crear el entorno con `python3.12 -m venv --without-pip .venv` y completar `python -m pip --python .venv/bin/python install pip -e '.[dev]'` usando el pip global. El entorno de esta entrega ya está preparado.
+Colocar el CSV original separado por `;` en `data/raw/Dataset Renovacion_prestamo.csv`, o indicar otra ruta con `--data`. No sustituirlo por datos sintéticos para reportar resultados del caso. En Jupyter, seleccionar **Loan renewal (.venv)**.
 
-Colocar el CSV original separado por punto y coma en `data/raw/Dataset Renovacion_prestamo.csv`. El archivo **no se versiona**; no sustituirlo por datos inventados. El devcontainer fija Python 3.12 para reconstrucciones futuras.
-
-```bash
-python scripts/execute_notebook.py notebooks/Caso_Renovacion_Prestamo_refactorizado.ipynb
-python -m loan_renewal predict --model artifacts/model.joblib --input entrada_raw.csv --output artifacts/predicciones.csv
-```
-
-`entrada_raw.csv` usa `;` y las 19 columnas originales del contrato. Puede incluir `MES`, `CLIENTE` y `FLAG_VENTA`, que se excluyen de los predictores. Las columnas requeridas ausentes generan error. No construir `_LOG`, dummies ni clusters manualmente.
-
-## Organización
-
-| Ruta | Responsabilidad |
-|---|---|
-| `src/loan_renewal/schema.py` | Contrato de columnas y tipos |
-| `src/loan_renewal/data.py` | Carga, validación y corte temporal |
-| `src/loan_renewal/features.py` | Logs, imputación, escalado, encoding y KMeans |
-| `src/loan_renewal/modeling.py` | Candidatos y muestreo solo en fit |
-| `src/loan_renewal/evaluation.py` | Scores, métricas y umbral |
-| `src/loan_renewal/pipeline.py` | Orquestación, selección y manifiesto |
-| `src/loan_renewal/predict.py` | Inferencia sobre datos raw |
-| `tests/` | Contratos, aislamiento de datos y paridad |
-| `docs/` | Auditoría por celda y diccionario |
-| `.agents/skills/` | Procedimientos recuperados y contratos de agentes |
-
-## Protocolo y cambios respecto del original
-
-Se entrena con enero–junio de 2015, se seleccionan modelo y umbral en julio–agosto y se evalúa el seleccionado en septiembre. Ningún transformer aprende del test. El pipeline completo y el umbral se guardan juntos. El modelo ganador permanece ajustado a train, sin un refit oculto con validación.
-
-Se comparan seis candidatos por defecto: Dummy, tres árboles (sin balanceo, under y over), Random Forest base y regularizado con under. La selección maximiza F1 de renovación en validación; AP desempata. El umbral usa una cuadrícula explícita. Es una comparación acotada, no GridSearch exhaustivo.
-
-Para conservar el ajuste del original, `--tune` agrega un Random Forest elegido por GridSearchCV sobre tres folds temporales internos de train. Cada fold reajusta todas las transformaciones y el muestreo; son cuatro combinaciones (12 ajustes CV y un refit). Después se compara ese candidato con los seis base usando julio–agosto. El notebook habilita esta búsqueda por defecto.
+## Ejecutar el flujo
 
 ```bash
-python -m loan_renewal train --data "data/raw/Dataset Renovacion_prestamo.csv" --output artifacts --tune
+make pipeline
+make notebook
 ```
 
-SMOTE y XGBoost son **extensiones opcionales** y no se incluyen en la corrida base:
+También se pueden usar los puntos de entrada del paquete:
 
 ```bash
-python -m pip install -e '.[smote,xgboost]'
-python -m loan_renewal train --data "data/raw/Dataset Renovacion_prestamo.csv" --output artifacts/extended --smote --xgboost
+python -m loan_renewal pipeline --tune --track
+python -m loan_renewal train --data "data/raw/Dataset Renovacion_prestamo.csv" --output models --reports reports/training --tune --track
+python -m loan_renewal predict --model models/model.joblib --input entrada_raw.csv --output reports/predicciones.csv
 ```
 
-No comparar retrospectivamente opciones usando test para escoger. SMOTE interpola también las columnas one-hot transformadas; su pertinencia requiere validación específica.
+El pipeline valida datos y features, entrena, selecciona mediante validación, calcula la evaluación final, comprueba paridad de recarga y registra el experimento cuando se solicita `--track`. El modelo completo se guarda en `models/model.joblib`; métricas, comparación y manifiesto quedan en `reports/training/`.
 
-## Resultados y límites
+`entrada_raw.csv` usa `;` y las 19 variables originales del contrato. No construir logs, dummies ni clusters a mano. Las columnas requeridas ausentes generan error; las categorías nuevas utilizan el encoder persistido.
 
-Las métricas observadas se generan en `artifacts/metrics.json`, con comparación de validación en `comparison.csv` y linaje en `manifest.json`: hash del CSV y código, entorno, semilla, meses, conteos, criterio de selección y hash del artefacto.
+## Experimentos y MLflow
 
-El score no está calibrado y no determina aprobación ni elegibilidad de crédito. Faltan costes/capacidad de campaña, confirmación de disponibilidad temporal de features y evaluación de uso de atributos demográficos antes de uso operativo. El análisis histórico ya observó todo el archivo; el nuevo split no convierte septiembre en una campaña prospectiva nunca explorada. No se presenta como sistema productivo.
+```bash
+python -m loan_renewal experiments base
+python -m loan_renewal experiments grid
+python -m loan_renewal experiments random
+python -m loan_renewal experiments compare
+python -m loan_renewal experiments best
+python -m loan_renewal experiments registry
+```
 
-Ver [auditoría y diferencias metodológicas](docs/refactorizacion.md), [diccionario](docs/diccionario.md) y [fuentes](docs/fuentes.json). El notebook original adjunto permanece como fuente, sin modificaciones. Las tablas de resultados del original no se reutilizan como resultados actuales.
+`python -m loan_renewal experiments all` realiza la secuencia completa. La comparación exige el mismo hash de datos y protocolo y ordena por métricas de validación. El registro conserva umbral, URI exacta y alias `candidato`, y verifica paridad tras recargarlo. Registrar un candidato no lo despliega ni lo aprueba para producción.
 
-## Agentes y skills
+El backend compartido es SQLite local:
 
-Se recuperaron de las definiciones de la conversación tres procedimientos: diseño, pipeline y ajuste/evaluación. Se usaron agentes de datos/features, modelado y verificación con archivos de trabajo separados. Estas definiciones están versionadas en el proyecto; no implican instalación global de Skills ni procesos permanentes.
+```bash
+mlflow ui --backend-store-uri "sqlite:///$(pwd)/reports/tracking/mlflow.db" --host 127.0.0.1 --port 5000
+```
 
-El CSV, originales y artefactos no se publican en este repositorio. Los modelos joblib deben cargarse solo cuando su origen sea confiable.
+## DVC y reproducción
+
+```bash
+python -m loan_renewal version-data --dvc
+make dvc
+```
+
+El primer comando agrega el CSV a la caché DVC y genera su puntero. `make dvc` reproduce el stage de `dvc.yaml`, que ejecuta el pipeline con tracking y declara el modelo, las métricas y el estado local de tracking. Git conserva únicamente código y metadatos DVC. No se configura un remoto ni se ejecuta `dvc push`: disponer de un puntero no garantiza recuperar los bytes fuera de este Codespace.
+
+## API y Docker
+
+Entrenar primero para disponer de `models/model.joblib`:
+
+```bash
+make api
+# Alternativa en contenedor:
+make docker
+```
+
+FastAPI expone `GET /health`, `POST /predecir` y `/docs`. Recibe variables crudas y carga el mismo bundle de entrenamiento. La comprobación de salud falla si el modelo no está listo. Compose monta `models/` como solo lectura y publica el servicio en localhost; los datos y modelos no se incorporan a las capas de la imagen.
+
+## Protocolo de evaluación
+
+Se entrena con enero–junio de 2015, se seleccionan modelo y umbral con julio–agosto y se evalúa el seleccionado con septiembre. Imputación, escalado, categorías, clustering y balanceo se ajustan únicamente con train o con el train de cada fold. F1 positiva es el criterio de selección y Average Precision desempata; ROC-AUC y AP se calculan con scores.
+
+El ajuste opcional conserva GridSearchCV y RandomizedSearchCV con folds temporales internos y presupuesto acotado. SMOTE y XGBoost requieren extras específicos; SMOTE sobre one-hot transformado necesita validación de pertinencia. No volver a elegir candidatos usando resultados de test. El notebook histórico ya exploró todo el CSV: una evaluación prospectiva necesita campañas nuevas.
+
+El score es una salida sin calibración; no determina aprobación ni elegibilidad de crédito. Faltan costes y capacidad de campaña, confirmación de disponibilidad temporal de las variables y evaluación del uso de atributos demográficos antes de un uso operativo.
+
+## Agentes y evidencia
+
+`.agents/skills/` conserva procedimientos y contratos para diseño, pipelines y evaluación. Los especialistas trabajan en áreas asignadas y el coordinador integra y verifica. Las definiciones no implican agentes permanentes ni instalación global.
+
+Las pruebas de contrato, notebook, API, Docker, DVC y Registry comprueban aspectos distintos. Los reportes locales documentan cada ejecución concreta; la presencia de una configuración no demuestra por sí sola que un servicio haya sido ejecutado. Consultar [diccionario](docs/diccionario.md) y [fuentes](docs/fuentes.json) para trazabilidad.

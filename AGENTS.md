@@ -9,3 +9,6 @@ Objetivo: propensión comercial de renovación, no riesgo de default ni decision
 - No versionar CSV, registros de clientes, originales con salidas, modelos o credenciales.
 - Ejecutar python -m unittest discover -s tests -v. Para cambios de ejecución, validar CLI y notebook completo en .venv.
 - Roles delegables: datos/features (schema/data/features), modelado (modeling/evaluation/pipeline/predict), verificación (tests/docs); el coordinador integra. Cada agente posee solo sus archivos asignados.
+
+- Estructura CCDS: código en src/loan_renewal, notebook en notebooks, fuentes privadas en references/original, datos en data/raw, modelos en models, informes en reports. No recrear carpetas Unidad01–06; conservar correspondencia en docs.
+- Validar CLI, notebook, tracking, DVC y API/Docker tras cambios en rutas; hacer checkpoints Git sin datos ni resultados privados.

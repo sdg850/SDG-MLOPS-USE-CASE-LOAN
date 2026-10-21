@@ -33,10 +33,11 @@ def require_mlflow():
         raise ImportError("MLflow tracking requires the optional dependency: pip install -e '.[tracking]'.") from error
 
 
-def resolve_tracking_uri(tracking_uri=None, output_dir="artifacts") -> str:
+def resolve_tracking_uri(tracking_uri=None, output_dir=None) -> str:
     """Require an absolute local SQLite backend, never an implicit file store."""
     if tracking_uri is None:
-        root = Path(output_dir).expanduser().resolve()
+        from .config import TRACKING_DIR
+        root = Path(output_dir).expanduser().resolve() if output_dir is not None else TRACKING_DIR
         root.mkdir(parents=True, exist_ok=True)
         return "sqlite:///" + (root / "mlflow.db").as_posix()
     prefix = "sqlite:///"
@@ -171,7 +172,7 @@ def track_report(report, output_dir, tracking_uri=None, experiment="loan-renewal
         client = mlflow.tracking.MlflowClient(tracking_uri=uri, registry_uri=uri)
         existing = client.get_experiment_by_name(experiment)
         if existing is None:
-            artifact_root = output / "mlflow-artifacts"
+            artifact_root = Path(uri[len("sqlite:///"):]).parent / "mlflow-artifacts"
             artifact_root.mkdir(parents=True, exist_ok=True)
             experiment_id = client.create_experiment(experiment, artifact_location=artifact_root.as_uri())
         else:

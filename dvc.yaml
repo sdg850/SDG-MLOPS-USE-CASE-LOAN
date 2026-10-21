@@ -1,0 +1,21 @@
+stages:
+  training:
+    cmd: python -m loan_renewal pipeline --tune --track
+    deps:
+      - data/raw/Dataset Renovacion_prestamo.csv
+      - src/loan_renewal
+      - pyproject.toml
+    outs:
+      - models/model.joblib
+      - reports/training/manifest.json
+      - reports/training/comparison.csv
+      - reports/training/data_profile.json
+      - reports/training/feature_contract.json
+      - reports/training/stage_report.json
+      - reports/training/tracking.json
+      - reports/tracking/mlflow.db:
+          cache: false
+          persist: true
+    metrics:
+      - reports/training/metrics.json:
+          cache: false

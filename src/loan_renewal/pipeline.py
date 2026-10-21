@@ -109,7 +109,7 @@ def fit_candidates(train_frame, validation_frame, random_state=42, include_clust
     return winner, results
 
 
-def train(data_path, output_dir, random_state=42, include_cluster=True, include_smote=False, include_xgboost=False, tune=False, search_method="grid"):
+def train(data_path, output_dir, random_state=42, include_cluster=True, include_smote=False, include_xgboost=False, tune=False, search_method="grid", report_dir=None):
     """Train a complete raw-input artifact and evaluate the selected candidate once.
 
     Validation and threshold search use July/August. September is reserved for
@@ -166,6 +166,8 @@ def train(data_path, output_dir, random_state=42, include_cluster=True, include_
         ],
     }
     output_dir.mkdir(parents=True, exist_ok=True)
+    report_dir = Path(report_dir) if report_dir is not None else output_dir
+    report_dir.mkdir(parents=True, exist_ok=True)
     bundle = {"pipeline": winner["pipeline"], "threshold": winner["threshold"], "manifest": manifest}
     model_path = output_dir / "model.joblib"
     joblib.dump(bundle, model_path, compress=3)
@@ -186,9 +188,9 @@ def train(data_path, output_dir, random_state=42, include_cluster=True, include_
         "candidates": results,
         "manifest": manifest,
     }
-    (output_dir / "metrics.json").write_text(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
-    (output_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
+    (report_dir / "metrics.json").write_text(json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
+    (report_dir / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
     scalar_rows = [{key: value for key, value in row.items() if not isinstance(value, (dict, list))} for row in results]
-    pd.DataFrame(scalar_rows).to_csv(output_dir / "comparison.csv", index=False)
+    pd.DataFrame(scalar_rows).to_csv(report_dir / "comparison.csv", index=False)
     LOGGER.info("Winner %s; final test F1=%.4f; artifact %s", winner["name"], test_metrics["f1"], model_path)
-    return {"model_path": str(model_path), "metrics_path": str(output_dir / "metrics.json"), "comparison_path": str(output_dir / "comparison.csv"), **report}
+    return {"model_path": str(model_path), "metrics_path": str(report_dir / "metrics.json"), "comparison_path": str(report_dir / "comparison.csv"), **report}

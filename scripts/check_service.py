@@ -12,7 +12,7 @@ from loan_renewal.tracking import synthetic_probe
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--url", default="http://127.0.0.1:8000")
-parser.add_argument("--model", type=Path, default=Path("artifacts/model.joblib"))
+parser.add_argument("--model", type=Path, default=Path("models/model.joblib"))
 args = parser.parse_args()
 
 with urlopen(args.url + "/health", timeout=10) as response:

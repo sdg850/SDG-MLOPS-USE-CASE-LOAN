@@ -22,10 +22,12 @@ def _write(path, value):
     Path(path).write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False), encoding="utf-8")
 
 
-def run_stages(data_path, output_dir, tune=False, search_method="grid", track=False):
+def run_stages(data_path, output_dir, tune=False, search_method="grid", track=False, report_dir=None):
     """Stop on a failed stage and retain stage_report.json, including failures."""
     output = Path(output_dir).resolve()
     output.mkdir(parents=True, exist_ok=True)
+    reports = Path(report_dir).resolve() if report_dir is not None else output
+    reports.mkdir(parents=True, exist_ok=True)
     state, stages = {}, []
     result = {"status": "running", "stages": stages}
 
@@ -33,7 +35,7 @@ def run_stages(data_path, output_dir, tune=False, search_method="grid", track=Fa
         state["data"] = load_dataset(data_path)
         profile = validate_dataset(state["data"])
         profile["dataset_sha256"] = dataset_sha256(data_path)
-        _write(output / "data_profile.json", profile)
+        _write(reports / "data_profile.json", profile)
         return {"rows": profile["rows"], "dataset_sha256": profile["dataset_sha256"]}
 
     def features():
@@ -44,11 +46,11 @@ def run_stages(data_path, output_dir, tune=False, search_method="grid", track=Fa
                     "cluster_columns": CLUSTER_COLUMNS,
                     "fit_policy": "Each training/CV fold fits its own full transformer.",
                     "partition_rows": {k: len(v) for k, v in parts.items()}}
-        _write(output / "feature_contract.json", contract)
+        _write(reports / "feature_contract.json", contract)
         return {"raw_feature_count": len(FEATURE_COLUMNS), "partition_rows": contract["partition_rows"]}
 
     def training():
-        state["report"] = train(data_path, output, tune=tune, search_method=search_method)
+        state["report"] = train(data_path, output, tune=tune, search_method=search_method, report_dir=reports)
         return {"winner": state["report"]["winner"], "threshold": state["report"]["threshold"]}
 
     def evaluate():
@@ -70,7 +72,7 @@ def run_stages(data_path, output_dir, tune=False, search_method="grid", track=Fa
         def tracking():
             from .tracking import track_report
             from .config import tracking_uri
-            return track_report(state["report"], output, tracking_uri=tracking_uri())
+            return track_report(state["report"], reports, tracking_uri=tracking_uri())
         operations.append(("mlflow_tracking", tracking))
     for name, action in operations:
         started = time.perf_counter()
@@ -80,9 +82,9 @@ def run_stages(data_path, output_dir, tune=False, search_method="grid", track=Fa
         except Exception as error:
             stages.append({"stage": name, "status": "failed", "seconds": round(time.perf_counter() - started, 4), "error_type": type(error).__name__})
             result["status"] = "failed"
-            _write(output / "stage_report.json", result)
+            _write(reports / "stage_report.json", result)
             raise
-        _write(output / "stage_report.json", result)
+        _write(reports / "stage_report.json", result)
     result["status"] = "ok"
-    _write(output / "stage_report.json", result)
+    _write(reports / "stage_report.json", result)
     return result

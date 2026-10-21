@@ -2,13 +2,13 @@ services:
   api:
     build: .
     environment:
-      MODEL_PATH: /app/artifacts/model.joblib
+      MODEL_PATH: /app/models/model.joblib
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
       - type: bind
-        source: ./artifacts
-        target: /app/artifacts
+        source: ./models
+        target: /app/models
         read_only: true
     read_only: true
     tmpfs:
