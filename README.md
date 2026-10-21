@@ -71,7 +71,7 @@ python -m loan_renewal version-data --dvc
 make dvc
 ```
 
-El primer comando agrega el CSV a la caché DVC y genera su puntero. `make dvc` reproduce el stage de `dvc.yaml`, que ejecuta el pipeline con tracking y declara el modelo, las métricas y el estado local de tracking. Git conserva únicamente código y metadatos DVC. No se configura un remoto ni se ejecuta `dvc push`: disponer de un puntero no garantiza recuperar los bytes fuera de este Codespace.
+El primer comando agrega el CSV a la caché DVC y genera su puntero. `make dvc` reproduce el stage de `dvc.yaml`, que ejecuta el pipeline con tracking y declara el modelo, las métricas y la evidencia del run de tracking. Git conserva únicamente código y metadatos DVC. No se configura un remoto ni se ejecuta `dvc push`: disponer de un puntero no garantiza recuperar los bytes fuera de este Codespace.
 
 ## API y Docker
 

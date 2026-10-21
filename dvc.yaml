@@ -13,9 +13,6 @@ stages:
       - reports/training/feature_contract.json
       - reports/training/stage_report.json
       - reports/training/tracking.json
-      - reports/tracking/mlflow.db:
-          cache: false
-          persist: true
     metrics:
       - reports/training/metrics.json:
           cache: false

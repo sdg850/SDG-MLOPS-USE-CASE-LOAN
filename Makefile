@@ -13,6 +13,6 @@ notebook:
 api:
 	$(PYTHON) -m uvicorn loan_renewal.api:app --host 127.0.0.1 --port 8000
 docker:
-	docker compose up --build -d
+	docker compose up --build --wait -d
 dvc:
 	PATH="$(CURDIR)/.venv/bin:$$PATH" $(PYTHON) -m dvc repro

@@ -31,7 +31,7 @@ El notebook original que estaba en `docs/` se conserva en `references/original/`
 
 La configuración central define las rutas del proyecto. Entrenamiento y orquestación utilizan `models/` para el bundle y `reports/training/` para evidencia; la base compartida de MLflow es `reports/tracking/mlflow.db`. Docker monta `models/` en modo de solo lectura. Notebook, CLI y API importan el mismo paquete.
 
-`dvc.yaml` declara un stage que ejecuta el pipeline con `--track`: el bundle es una salida DVC y `reports/training/metrics.json` registra las métricas. El base SQLite local de tracking se conserva como salida sin caché para mantener sus efectos locales; no es un respaldo remoto de MLflow. El CSV se identifica mediante su puntero DVC. Deben conservarse caché o remoto autorizado para recuperar sus bytes.
+`dvc.yaml` declara un stage que ejecuta el pipeline con `--track`: el bundle es una salida DVC y `reports/training/metrics.json` registra las métricas. La base SQLite y los artefactos de MLflow cambian con cada experimento y permanecen fuera de las salidas DVC. DVC conserva el modelo y la evidencia del run; MLflow requiere un respaldo propio. El CSV se identifica mediante su puntero DVC. Deben conservarse caché o remoto autorizado para recuperar sus bytes.
 
 No se obliga a generar matrices transformadas intermedias. Imputadores, escaladores, categorías y clustering se ajustan dentro del pipeline de train/folds y se persisten con el estimador. La estructura de carpetas no modifica el protocolo temporal ni permite usar validación o test durante `fit`.
 

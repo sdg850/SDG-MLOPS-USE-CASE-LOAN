@@ -1,0 +1,51 @@
+schema: '2.0'
+stages:
+  training:
+    cmd: python -m loan_renewal pipeline --tune --track
+    deps:
+    - path: data/raw/Dataset Renovacion_prestamo.csv
+      hash: md5
+      md5: 3beef844ebc3d6caa3e0facfcbc14689
+      size: 8931339
+    - path: pyproject.toml
+      hash: md5
+      md5: a3e1ca591afee623b981e2da45e08340
+      size: 921
+    - path: src/loan_renewal
+      hash: md5
+      md5: e77c19a77cc83f932e6d22cf84a995e3.dir
+      size: 82578
+      nfiles: 17
+    outs:
+    - path: models/model.joblib
+      hash: md5
+      md5: 3b85d2c03a85111c55c9bcdce7f61ffb
+      size: 461852
+    - path: reports/training/comparison.csv
+      hash: md5
+      md5: a28340df34ddd6708e6d9b7603655ef3
+      size: 1646
+    - path: reports/training/data_profile.json
+      hash: md5
+      md5: 233e273396a9c8c2afb5342454de927a
+      size: 1011
+    - path: reports/training/feature_contract.json
+      hash: md5
+      md5: 04e28e9bd373f0fc1a3e954d977eb36a
+      size: 1082
+    - path: reports/training/manifest.json
+      hash: md5
+      md5: 7806fbb13ed0216eb0eabb299de6c52d
+      size: 8505
+    - path: reports/training/metrics.json
+      hash: md5
+      md5: 47b339c4aff60db6d5445217cee70054
+      size: 21819
+    - path: reports/training/stage_report.json
+      hash: md5
+      md5: c698fb9db81f4f05e59e019754f780df
+      size: 1715
+    - path: reports/training/tracking.json
+      hash: md5
+      md5: 6f0551a1188da0c138a08ea5eb684762
+      size: 508
