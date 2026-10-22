@@ -7,11 +7,11 @@ install:
 test:
 	$(PYTHON) -m unittest discover -s tests -v
 pipeline:
-	$(PYTHON) -m loan_renewal pipeline --tune --track
+	$(PYTHON) pipelines/run_training.py --tune --track
 notebook:
 	$(PYTHON) scripts/execute_notebook.py notebooks/01_renovacion_prestamo.ipynb
 api:
-	$(PYTHON) -m uvicorn loan_renewal.api:app --host 127.0.0.1 --port 8000
+	$(PYTHON) -m uvicorn api.app:app --host 127.0.0.1 --port 8000
 docker:
 	docker compose up --build --wait -d
 dvc:

@@ -9,3 +9,8 @@ src/**/*.joblib
 src/**/*.pkl
 src/**/*.csv
 src/**/.env
+
+!api/
+!api/**
+api/**/__pycache__/
+api/**/*.pyc

@@ -24,7 +24,8 @@ reports/**/*
 references/original/*
 !references/original/.gitkeep
 artifacts/
-mlruns/
+mlruns/*
+!mlruns/.gitkeep
 mlartifacts/
 *.joblib
 *.pkl

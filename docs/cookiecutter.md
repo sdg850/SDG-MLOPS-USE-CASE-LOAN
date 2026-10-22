@@ -12,7 +12,9 @@ El repositorio adopta la separación de datos, notebooks, código instalable, re
 | `notebooks/01_renovacion_prestamo.ipynb` | Único notebook ejecutable del flujo, sin salidas versionadas |
 | `references/original/` | Notebook fuente de `docs/`, diccionario y presentación originales; privados y sin modificar |
 | `reports/training/` | Métricas calculadas, comparación, manifiesto y evidencia por etapa |
-| `reports/tracking/` | SQLite de MLflow y estado local de seguimiento, excluidos de Git |
+| `mlruns/` | SQLite y artefactos locales de MLflow, excluidos de Git |
+| `pipelines/` | Scripts numerados y orquestadores de experimentación |
+| `api/` | Servicio FastAPI y esquemas de entrada/salida |
 | `reports/figures/` | Figuras generadas para análisis e informes |
 | `docs/` | Documentación mantenida: auditoría, contrato de datos y correspondencia del curso |
 | `src/loan_renewal/` | Ingestión, features, modelado, evaluación, inferencia, API y orquestación compartidos |
@@ -29,7 +31,7 @@ El notebook original que estaba en `docs/` se conserva en `references/original/`
 
 ## Rutas y reproducción
 
-La configuración central define las rutas del proyecto. Entrenamiento y orquestación utilizan `models/` para el bundle y `reports/training/` para evidencia; la base compartida de MLflow es `reports/tracking/mlflow.db`. Docker monta `models/` en modo de solo lectura. Notebook, CLI y API importan el mismo paquete.
+La configuración central define las rutas del proyecto. Entrenamiento y orquestación utilizan `models/` para el bundle y `reports/training/` para evidencia; la base compartida de MLflow es `mlruns/mlflow.db`. Docker monta `models/` en modo de solo lectura. Notebook, CLI y API importan el mismo paquete.
 
 `dvc.yaml` declara un stage que ejecuta el pipeline con `--track`: el bundle es una salida DVC y `reports/training/metrics.json` registra las métricas. La base SQLite y los artefactos de MLflow cambian con cada experimento y permanecen fuera de las salidas DVC. DVC conserva el modelo y la evidencia del run; MLflow requiere un respaldo propio. El CSV se identifica mediante su puntero DVC. Deben conservarse caché o remoto autorizado para recuperar sus bytes.
 
@@ -49,6 +51,4 @@ No se obliga a generar matrices transformadas intermedias. Imputadores, escalado
 
 Los commits checkpoint deben agrupar cambios verificables: estructura y rutas; notebook e integraciones; pruebas y evidencia. Revisar los archivos preparados antes de cada push para conservar fuera de Git datos, modelos, originales con salidas, cachés y credenciales.
 
-## Generación verificada
-
-Se ejecutó CCDS 2.3.0 con la plantilla oficial; sus carpetas de datos, modelos, notebook, referencias e informes se integraron con el proyecto existente. Se conserva src/ como adaptación deliberada. Parámetros y commit exacto de plantilla: cookiecutter-generation.json.
+La plantilla base se generó con CCDS 2.3.0. Parámetros y commit de referencia: `cookiecutter-generation.json`.

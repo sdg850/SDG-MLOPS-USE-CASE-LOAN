@@ -1,9 +1,10 @@
 stages:
   training:
-    cmd: python -m loan_renewal pipeline --tune --track
+    cmd: python pipelines/run_training.py --tune --track
     deps:
       - data/raw/Dataset Renovacion_prestamo.csv
       - src/loan_renewal
+      - pipelines/run_training.py
       - pyproject.toml
     outs:
       - models/model.joblib

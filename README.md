@@ -48,12 +48,12 @@ El pipeline valida datos y features, entrena, selecciona mediante validación, c
 ## Experimentos y MLflow
 
 ```bash
-python -m loan_renewal experiments base
-python -m loan_renewal experiments grid
-python -m loan_renewal experiments random
-python -m loan_renewal experiments compare
-python -m loan_renewal experiments best
-python -m loan_renewal experiments registry
+python pipelines/01_base_pipeline.py
+python pipelines/02_gridsearch_mlflow.py
+python pipelines/03_randomsearch_mlflow.py
+python pipelines/04_comparar_runs.py
+python pipelines/05_mejor_modelo.py
+python pipelines/06_model_registry.py
 ```
 
 `python -m loan_renewal experiments all` realiza la secuencia completa. La comparación exige el mismo hash de datos y protocolo y ordena por métricas de validación. El registro conserva umbral, URI exacta y alias `candidato`, y verifica paridad tras recargarlo. Registrar un candidato no lo despliega ni lo aprueba para producción.
@@ -61,7 +61,7 @@ python -m loan_renewal experiments registry
 El backend compartido es SQLite local:
 
 ```bash
-mlflow ui --backend-store-uri "sqlite:///$(pwd)/reports/tracking/mlflow.db" --host 127.0.0.1 --port 5000
+mlflow ui --backend-store-uri "sqlite:///$(pwd)/mlruns/mlflow.db" --host 127.0.0.1 --port 5000
 ```
 
 ## DVC y reproducción
@@ -98,3 +98,11 @@ El score es una salida sin calibración; no determina aprobación ni elegibilida
 `.agents/skills/` conserva procedimientos y contratos para diseño, pipelines y evaluación. Los especialistas trabajan en áreas asignadas y el coordinador integra y verifica. Las definiciones no implican agentes permanentes ni instalación global.
 
 Las pruebas de contrato, notebook, API, Docker, DVC y Registry comprueban aspectos distintos. Los reportes locales documentan cada ejecución concreta; la presencia de una configuración no demuestra por sí sola que un servicio haya sido ejecutado. Consultar [diccionario](docs/diccionario.md) y [fuentes](docs/fuentes.json) para trazabilidad.
+
+## Separación de responsabilidades
+
+`pipelines/` contiene los scripts numerados de experimentación y sus orquestadores; `api/` contiene el servicio FastAPI y los esquemas HTTP; `mlruns/` contiene exclusivamente SQLite y artefactos locales de MLflow. El núcleo reutilizable de datos y modelos continúa en `src/loan_renewal/`. Los nombres y scripts siguen el patrón de la referencia, conservando el contrato de renovación.
+
+`python pipelines/run_pipeline.py` ejecuta base, grid, random, comparación, selección y Registry; `python pipelines/run_training.py --tune --track` ejecuta las etapas de un entrenamiento. La CLI `loan-renewal` continúa disponible.
+
+Los archivos `*.egg-info` son metadatos de construcción regenerables, excluidos de Git. La instalación editable moderna conserva los metadatos activos en `.venv/...dist-info`; se retiran las copias redundantes del árbol de fuentes después de comprobar CLI, imports y versiones. Una nueva instalación puede regenerarlas; el explorador las oculta.

@@ -10,7 +10,7 @@ Se toman como referencia los patrones inspeccionados del repositorio de curso `s
 | 2 | `Unidad02/src/main.py`: carga, preparación, features y entrenamiento separados | `src/loan_renewal/{data,schema,features,modeling,evaluation,pipeline,predict}.py`; `train` y notebook delgado |
 | 3 | `Unidad03/laboratorio/src/train.py` y material de versionamiento: entrenamiento, métricas y trazabilidad | `version-data --dvc`, puntero del CSV, `dvc.yaml`, manifiesto y `tracking.py` |
 | 4 | `Unidad04/run_pipeline.py` y `config.py`: etapas secuenciales, configuración, duración y fallo explícito | `python -m loan_renewal pipeline --tune --track`; `orchestration.py`, `config.py` y evidencia en `reports/training/` |
-| 5 | `Unidad05/api/app.py`, `schemas.py` y Dockerfile: contratos HTTP, carga al iniciar y contenedor | `src/loan_renewal/api.py`, Dockerfile y Compose de raíz; `/health`, `/predecir` y `/docs` |
+| 5 | `Unidad05/api/app.py`, `schemas.py` y Dockerfile: contratos HTTP, carga al iniciar y contenedor | `api/app.py y api/schemas.py`, Dockerfile y Compose de raíz; `/health`, `/predecir` y `/docs` |
 | 6 | `02_gridsearch_mlflow.py`, `03_randomsearch_mlflow.py`, `04_comparar_runs.py` y `06_model_registry.py` | `experiments base`, `grid`, `random`, `compare`, `best`, `registry` o `all`; `course.py`, `tracking.py` y `experimentos.py` |
 
 Las unidades son ahora una correspondencia documental. No hay seis carpetas de implementación: los puntos de entrada utilizan el paquete instalado desde `src/` bajo [la organización Cookiecutter](cookiecutter.md).
@@ -47,7 +47,7 @@ La selección utiliza F1 positiva de validación, con Average Precision como des
 
 ### MLflow, Registry y DVC
 
-MLflow usa la URI SQLite absoluta de `reports/tracking/mlflow.db`. Cada run conserva parámetros, métricas calculadas, identidad del dataset y protocolo, umbral y pipeline. Se utiliza la URI exacta devuelta por MLflow y se comprueba paridad al recargar.
+MLflow usa la URI SQLite absoluta de `mlruns/mlflow.db`. Cada run conserva parámetros, métricas calculadas, identidad del dataset y protocolo, umbral y pipeline. Se utiliza la URI exacta devuelta por MLflow y se comprueba paridad al recargar.
 
 Registry utiliza el alias reversible `candidato`, con metadatos del umbral y linaje; no equivale a promover a producción. DVC versiona identidad y reproducción del dataset/pipeline. Agregar a caché o guardar un puntero no significa haber publicado ni respaldado los bytes en un remoto.
 

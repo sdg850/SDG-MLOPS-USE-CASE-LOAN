@@ -22,7 +22,9 @@ xgboost = ["xgboost>=3,<4"]
 loan-renewal = "loan_renewal.__main__:main"
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["src", "."]
+include = ["loan_renewal*", "api*"]
+namespaces = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

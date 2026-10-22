@@ -12,3 +12,5 @@ Objetivo: propensión comercial de renovación, no riesgo de default ni decision
 
 - Estructura CCDS: código en src/loan_renewal, notebook en notebooks, fuentes privadas en references/original, datos en data/raw, modelos en models, informes en reports. No recrear carpetas Unidad01–06; conservar correspondencia en docs.
 - Validar CLI, notebook, tracking, DVC y API/Docker tras cambios en rutas; hacer checkpoints Git sin datos ni resultados privados.
+
+- Separación de servicios: entradas en pipelines/, HTTP en api/, estado MLflow privado en mlruns/. Conservar historial al migrar tracking y verificar recarga por alias.
