@@ -68,6 +68,35 @@ class ApiContractTests(unittest.TestCase):
             payload["REGION"] = None
             self.assertEqual(client.post("/predecir", json=payload).status_code, 200)
 
+    def test_openapi_documents_raw_fields_examples_and_health_response(self):
+        with TestClient(create_app(self.path)) as client:
+            spec = client.get("/openapi.json").json()
+            schema = spec["components"]["schemas"]["ClienteInput"]
+            self.assertEqual(set(schema["required"]), set(FEATURE_COLUMNS))
+            self.assertFalse(schema["additionalProperties"])
+            self.assertTrue(all(field.get("description") for field in schema["properties"].values()))
+            for example in schema["examples"]:
+                self.assertEqual(set(example), set(FEATURE_COLUMNS))
+                self.assertEqual(client.post("/predecir", json=example).status_code, 200)
+            health_schema = spec["paths"]["/health"]["get"]["responses"]["200"]["content"]["application/json"]["schema"]
+            self.assertEqual(health_schema["$ref"], "#/components/schemas/HealthResponse")
+            self.assertEqual(client.get("/health").json(), {
+                "status": "ok", "modelo": "synthetic_tree", "version": "0.1.0",
+            })
+
+    def test_documentation_preserves_signed_null_and_unknown_category_inputs(self):
+        with TestClient(create_app(self.path)) as client:
+            payload = self.payload()
+            payload.update({"Ahorro_Sldo_Bco_T1": -25.0,
+                            "DIFF_NRO_ENTIDA_TOTALES_T2_T12": -1.0,
+                            "EDAD": None, "REGION": "NEW_SYNTHETIC_REGION"})
+            response = client.post("/predecir", json=payload)
+            self.assertEqual(response.status_code, 200)
+            offline = predict_frame(self.bundle, pd.DataFrame([payload])).iloc[0]
+            self.assertAlmostEqual(response.json()["score_propension"], offline["probabilidad_renovacion"], places=14)
+            payload["SUELDO_ESTIMADO"] = "3500"
+            self.assertEqual(client.post("/predecir", json=payload).status_code, 422)
+
     def test_lifespan_loads_once_and_predictions_equal_the_offline_path(self):
         from loan_renewal import api
         with patch.object(api, "load_artifact", wraps=api.load_artifact) as loading:

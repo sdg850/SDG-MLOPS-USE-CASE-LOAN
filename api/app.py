@@ -18,7 +18,7 @@ from fastapi.responses import JSONResponse
 
 from loan_renewal.predict import load_artifact, predict_frame
 from loan_renewal.config import MODELS_DIR
-from .schemas import ClienteInput, PrediccionOutput
+from .schemas import ClienteInput, HealthResponse, PrediccionOutput
 
 LOGGER = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ def create_app(model_path: str | Path | None = None) -> FastAPI:
             "prediction": "POST /predecir",
         }
 
-    @application.get("/health", tags=["Readiness"])
+    @application.get("/health", response_model=HealthResponse, tags=["Readiness"])
     def health(request: Request):
         bundle = request.app.state.bundle
         if bundle is None:

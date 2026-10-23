@@ -53,3 +53,19 @@ Fuente semántica: `Diccionario Renovacion prestamo.xlsx`, hoja 1. Fuente de nom
 | `ANTIGUEDAD_MES` | 1 |
 
 Estos conteos describen el archivo fuente inspeccionado. La validación de cada ejecución recalcula sus propios resultados.
+
+## Contrato HTTP documentado
+
+`api/schemas.py` publica en `/docs` las descripciones de los 19 campos raw y un
+JSON completo inventado. Todas las claves son obligatorias, aunque se admite
+`null`; un campo ausente devuelve 422. Se rechazan campos adicionales, números
+no finitos y texto usado como número. Los nulos se imputan en el pipeline.
+
+El contrato conserva categorías nuevas y saldos con signo. No impone límites
+arbitrarios de edad, moneda, escala porcentual ni un catálogo categórico que el
+diccionario no documenta. Los ejemplos solo verifican el contrato técnico.
+
+`PrediccionOutput` restringe score y umbral a [0, 1] y la clase a 0/1. El score
+no está calibrado. `HealthResponse` documenta `/health` con estado, nombre de
+modelo y versión del servicio API (distinta de la versión de MLflow Registry).
+El endpoint mantiene HTTP 503 si no se pudo cargar el modelo.
