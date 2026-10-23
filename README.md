@@ -276,6 +276,7 @@ El notebook histórico ya exploró todo el CSV. Repetir estas ejecuciones reprod
 | `make docker` | Construir y esperar al servicio Docker saludable. |
 | `make dvc` | Reproducir o reutilizar las salidas de la etapa DVC. |
 
+
 | Documento | Contenido |
 |---|---|
 | [Diccionario](docs/diccionario.md) | Variables y contrato del dataset. |
