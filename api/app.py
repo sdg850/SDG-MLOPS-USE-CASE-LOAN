@@ -1,6 +1,5 @@
 """Local commercial-propensity API using the same raw-input inference path.
 
-Adapted to this project's contract from the course's Unit 05 serving pattern.
 Only load artifacts created by a trusted training process: joblib uses pickle.
 The service predicts renewal propensity and never lending eligibility.
 """

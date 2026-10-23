@@ -2,8 +2,6 @@
 
 Proyecto educativo de MLOps para estimar la **propensión comercial de un cliente a aceptar la renovación de un préstamo**. La variable objetivo es `FLAG_VENTA`: `1` indica renovación observada y `0` ausencia de venta. El score no representa riesgo de impago ni determina elegibilidad crediticia.
 
-La implementación se encuentra en la rama [`refactor/cookiecutter`](https://github.com/sdg850/SDG-MLOPS-USE-CASE-LOAN/tree/refactor/cookiecutter). Su organización adapta Cookiecutter Data Science y los patrones de las unidades 1–6 del curso, con responsabilidades separadas para el núcleo del modelo, los pipelines, la API y el estado de MLflow.
-
 ## 1. Funcionalidad del proyecto
 
 El flujo permite:
@@ -46,7 +44,7 @@ El notebook llama a las mismas funciones que los comandos. Los scripts de `pipel
 | `.devcontainer/` | Configuración del entorno de desarrollo de Codespaces. |
 | `.vscode/` | Intérprete del proyecto y preferencias del explorador. |
 
-Los directorios de salidas se completan al ejecutar los comandos; un clon nuevo no incluye datos, modelos ni experimentos privados.
+Los directorios de salidas se completan al ejecutar los comandos
 
 | Archivo raíz | Función |
 |---|---|
@@ -57,8 +55,6 @@ Los directorios de salidas se completan al ejecutar los comandos; un clon nuevo 
 | `.gitignore` / `.dvcignore` / `.dockerignore` | Exclusiones de datos privados, metadatos generados y cachés según cada herramienta. |
 | `AGENTS.md` | Contrato de implementación y comprobaciones del proyecto. |
 
-Los `*.egg-info` son archivos generados durante la construcción o instalación. Las copias redundantes se retiraron después de verificar imports, versiones y CLI con los metadatos activos de `.venv/...dist-info`. Pueden regenerarse al reinstalar; se excluyen de Git y se ocultan en el explorador.
-
 ## 3. Requisitos e instalación
 
 - Python **3.12** recomendado; el paquete admite Python `>=3.11,<3.14`.
@@ -66,14 +62,7 @@ Los `*.egg-info` son archivos generados durante la construcción o instalación.
 - Docker Engine y Docker Compose para la alternativa en contenedor.
 - Acceso autorizado al CSV original: sus registros no están publicados en Git.
 
-Si comienzas con un clon nuevo:
-
-```bash
-git clone --branch refactor/cookiecutter https://github.com/sdg850/SDG-MLOPS-USE-CASE-LOAN.git
-cd SDG-MLOPS-USE-CASE-LOAN
-```
-
-Si ya estás en Codespaces, utiliza la raíz del repositorio y la rama indicada. Instala el entorno:
+Comenzar con un clon nuevo:
 
 ```bash
 make install
@@ -293,8 +282,7 @@ El notebook histórico ya exploró todo el CSV. Repetir estas ejecuciones reprod
 |---|---|
 | [Diccionario](docs/diccionario.md) | Variables y contrato del dataset. |
 | [Auditoría de refactorización](docs/refactorizacion.md) | Hallazgos del notebook original y cambios metodológicos. |
-| [Estructura Cookiecutter](docs/cookiecutter.md) | Organización y adaptaciones de la plantilla. |
-| [Unidades 1–6](docs/unidades_01_06.md) | Correspondencia entre los patrones del curso y esta implementación. |
+| [Estructura Cookiecutter](docs/cookiecutter.md) | Organización y adaptaciones de la  implementación. |
 | [Validación en Codespaces](docs/validacion.md) | Evidencia fechada: 34 pruebas y 18 celdas, además de API, Docker, Registry y DVC. |
 | [Fuentes originales](docs/fuentes.json) | Hashes de los archivos inspeccionados. |
 

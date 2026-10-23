@@ -10,24 +10,17 @@ El repositorio adopta la separación de datos, notebooks, código instalable, re
 | `data/external/` | Fuentes externas identificadas, cuando existan |
 | `models/` | Bundle completo de transformaciones, estimador, umbral y manifiesto; excluido de Git |
 | `notebooks/01_renovacion_prestamo.ipynb` | Único notebook ejecutable del flujo, sin salidas versionadas |
-| `references/original/` | Notebook fuente de `docs/`, diccionario y presentación originales; privados y sin modificar |
+| `references/original/` | Notebook fuente de `docs/`, diccionario original; privados y sin modificar |
 | `reports/training/` | Métricas calculadas, comparación, manifiesto y evidencia por etapa |
 | `mlruns/` | SQLite y artefactos locales de MLflow, excluidos de Git |
 | `pipelines/` | Scripts numerados y orquestadores de experimentación |
 | `api/` | Servicio FastAPI y esquemas de entrada/salida |
 | `reports/figures/` | Figuras generadas para análisis e informes |
-| `docs/` | Documentación mantenida: auditoría, contrato de datos y correspondencia del curso |
+| `docs/` | Documentación mantenida: auditoría, contrato de datos |
 | `src/loan_renewal/` | Ingestión, features, modelado, evaluación, inferencia, API y orquestación compartidos |
 | `tests/` | Pruebas de contrato, aislamiento temporal, serialización, CLI y servicio |
 | `scripts/` | Herramientas de ejecución de notebook y verificación de servicio |
-| `.agents/skills/` | Skills y contratos reutilizables de los especialistas |
 | `.devcontainer/` | Configuración de Codespaces |
-
-## Consolidación del trabajo anterior
-
-Las carpetas `Unidad01`–`Unidad06` eran adaptadores didácticos del mismo paquete. Sus responsabilidades se consolidan en la CLI; [el mapa del curso](unidades_01_06.md) conserva la trazabilidad. No se mantienen seis proyectos ni copias independientes del preprocesamiento.
-
-El notebook original que estaba en `docs/` se conserva en `references/original/`. El refactorizado vive en `notebooks/`; `docs/` contiene documentación, no un segundo notebook de entrenamiento. Los originales, CSV y modelos permanecen locales y se excluyen de Git.
 
 ## Rutas y reproducción
 
